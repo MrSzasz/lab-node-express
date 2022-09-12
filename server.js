@@ -8,21 +8,23 @@ const port = process.env.PORT || 5000;
 
 // Routes exports
 
-const HomeRoutes = require('./routes/home')
+const UsersRoutes = require('./routes/users')
 
 
 // Middlewares
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
-app.use(express.urlencoded({extended: false}));
+app.use(express.urlencoded({
+    extended: false
+}));
 
 
 // Routes
 
-app.use("/api", HomeRoutes)
+app.use("/api", UsersRoutes)
 
 
 // Server
 
-app.listen(port, ()=>console.log("Server on port " + port))
+app.listen(port, () => console.log("Server on port " + port))
