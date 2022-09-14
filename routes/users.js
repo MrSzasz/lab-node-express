@@ -1,6 +1,8 @@
 const {
     Router
 } = require("express")
+require('../database/db')
+const User = require("../models/User")
 
 const router = Router();
 
@@ -47,15 +49,26 @@ router.get('/users/:id', (req, res) => {
     res.json(user)
 })
 
-
+    
 // Add user
 
-router.post('/users', (req, res) => {
-    users.push({
-        id: users.length + 1,
-        ...req.body
-    })
-    res.json(users)
+router.post('/users', async (req, res) => {
+    try {
+        const userToDB = new User({
+            'name': 'jayce'
+        })
+        await userToDB.save()
+        res.json({message: 'success'})
+       
+    } catch (err) {
+        console.error(err);
+    }
+    // users.push({
+    //     id: users.length + 1,
+    //     ...req.body
+    // })
+    // res.json(users)
+
 })
 
 
