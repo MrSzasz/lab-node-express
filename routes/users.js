@@ -49,26 +49,20 @@ router.get('/users/:id', (req, res) => {
     res.json(user)
 })
 
-    
+
 // Add user
 
 router.post('/users', async (req, res) => {
     try {
         const userToDB = new User({
-            'name': 'jayce'
+            ...req.body
         })
         await userToDB.save()
         res.json({message: 'success'})
-       
+
     } catch (err) {
         console.error(err);
     }
-    // users.push({
-    //     id: users.length + 1,
-    //     ...req.body
-    // })
-    // res.json(users)
-
 })
 
 
