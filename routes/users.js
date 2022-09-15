@@ -6,47 +6,34 @@ const User = require("../models/User")
 
 const router = Router();
 
-
-// Database
-
-let users = [{
-        id: 1,
-        name: "Mark",
-        age: "24",
-        active: true
-    },
-    {
-        id: 2,
-        name: "Leslie",
-        age: "20",
-        active: true
-    },
-    {
-        id: 3,
-        name: "Jack",
-        age: "52",
-        active: false
-    }
-]
-
-
 // Get all users
 
-router.get('/users', (req, res) => {
-    res.json(users)
+router.get('/users', async (req, res) => {
+    try {
+        let usersInDB = await User.find().lean()
+        return res.json(usersInDB)
+    } catch (err) {
+        console.error(err)
+    }
 })
 
 
 // Get one user
 
-router.get('/users/:id', (req, res) => {
-    let user = users.find(userInArray => userInArray.id === parseInt(req.params.id));
-    if (!user) {
-        return res.status(404).send({
-            message: 'User not found'
-        });
+router.get('/users/:name', async (req, res) => {
+    try {
+        let name = (req.params.name).toLowerCase();
+        let oneUserInDB = await User.findOne({
+            name
+        }).lean()
+        oneUserInDB ?
+            res.json(oneUserInDB) :
+            res.status(404).json({
+                error: 'User not found'
+            })
+    } catch (err) {
+        console.error(err)
     }
-    res.json(user)
 })
 
 
@@ -54,11 +41,14 @@ router.get('/users/:id', (req, res) => {
 
 router.post('/users', async (req, res) => {
     try {
+        let name = (req.body.name).toLowerCase()
         const userToDB = new User({
-            ...req.body
+            name
         })
         await userToDB.save()
-        res.json({message: 'success'})
+        return res.json({
+            message: 'success'
+        })
 
     } catch (err) {
         console.error(err);
@@ -68,32 +58,42 @@ router.post('/users', async (req, res) => {
 
 // Edit user
 
-router.put('/users/:id', (req, res) => {
-    let userInDB = users.find(user => user.id === parseInt(req.params.id));
-    if (!userInDB) {
-        return res.status(404).json({
-            message: 'User not found'
-        })
+router.put('/users/:name', async (req, res) => {
+    try {
+        let data = (req.body.name).toLowerCase()
+        let name = (req.params.name).toLowerCase()
+        await User.findOneAndUpdate({
+                name: name
+            }, {
+                name: data
+            })
+            .then(response => response !== null ? res.json({
+                "message": "done"
+            }) : res.status(400).json({
+                message: "user not found"
+            }))
+    } catch (err) {
+        console.error(err)
     }
-    users = users.map(user => user.id === parseInt(req.params.id) ? {
-        ...user,
-        ...req.body
-    } : user)
-    res.json(users)
 })
 
 
 // Delete user
 
-router.delete('/users/:id', (req, res) => {
-    let userIndex = users.findIndex(user => user.id === parseInt(req.params.id));
-    if (userIndex === -1) {
-        return res.status(404).send({
-            message: 'User not found'
-        });
+router.delete('/users/:name', async (req, res) => {
+    try {
+        let name = (req.params.name).toLowerCase();
+        await User.findOneAndDelete({
+                name
+            })
+            .then(response => response !== null ? res.json({
+                message: 'done'
+            }) : res.status(404).json({
+                message: 'user not found'
+            }))
+    } catch (err) {
+        console.error(err)
     }
-    users.splice(userIndex, 1);
-    res.json(users)
 })
 
 
